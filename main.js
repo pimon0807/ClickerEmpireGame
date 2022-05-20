@@ -1,3 +1,5 @@
+console.log("git_pra")
+
 const config = {
     initialPage: document.getElementById("initialPage"),
     mainPage: document.getElementById("mainPage"),
