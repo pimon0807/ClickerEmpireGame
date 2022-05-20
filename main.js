@@ -1,5 +1,3 @@
-console.log("git_pra")
-console.log("git_practice")
 
 const config = {
     initialPage: document.getElementById("initialPage"),
