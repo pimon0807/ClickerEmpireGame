@@ -86,6 +86,7 @@ class View{
         `;
 
         container.querySelectorAll("#userInfo")[0].append(View.createUserInfo(user));
+        container.querySelectorAll("#displayItems")[0].append(View.createItemPage(user));
         return container;
     }
 
@@ -108,6 +109,37 @@ class View{
         </div>
         `;
         return container;
+    }
+
+    static createItemPage(user){
+        let container = document.createElement("div");
+        for(let i=0; i<user.items.length; i++){
+            container.innerHTML +=
+            `
+            <div class="text-white d-sm-flex align-items-center m-1 selectItem">
+                <div class="d-none d-sm-block p-1 col-sm-3">
+                    <img src="${user.items[i].url}" class="img-fluid">
+                </div>
+                <div class="col-sm-9">
+                    <div class="d-flex justify-content-between">
+                        <h4>${user.items[i].name}</h4>
+                        <h4>${user.items[i].currentAmount}</h4>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <p>￥${user.items[i].price}</p>
+                        <p class="text-success">￥${View.displayItemIncome(user.items[i], user.items[i].type)}</p>
+                    </div>
+                </div>                      
+            </div>
+            `;
+        }
+        return container;
+    }
+
+    static displayItemIncome(item, type){
+        if(type=="ability") return item.perMoney + " /click";
+        else if(type=="investment") return item.perRate + " /sec";
+        else return item.perMoney + " /sec";
     }
 }
 
