@@ -92,14 +92,14 @@ class View {
 
     static createMainPage(user) {
         let container = document.createElement("div");
-        container.classList.add("vh-100", "d-flex", "justify-content-center", "align-items-center")
+        container.classList.add("vh-100", "d-flex", "justify-content-center", "align-items-center", "bg-light")
         container.innerHTML =
             `
-            <div class="bg-navy d-flex col-10">
-                <div id="burgerInfo" class="bg-dark col-4">
+            <div class="bg-dark d-flex col-10 p-3">
+                <div id="burgerInfo" class="bg-darkNavy col-4 p-3">
                 </div>
                 <div class="col-8">
-                    <div id="userInfo">
+                    <div id="userInfo" class="bg-darkNavy">
                     </div>
                     
                     <div id="itemList" class="overflow-auto">
@@ -118,6 +118,7 @@ class View {
             `;
 
         container.querySelectorAll("#burgerInfo")[0].append(View.createBurgerInfo(user));
+        container.querySelectorAll("#userInfo")[0].append(View.createUserInfo(user));
 
         return container;
     }
@@ -126,7 +127,7 @@ class View {
         let container = document.createElement("div");
         container.innerHTML =
             `
-                <div class="text-white text-center">
+                <div class="text-white text-center bg-dark p-1">
                     <h3 id="clickCounter">${user.clickCounter} Burgers</h3>
                     <p>one click $${user.incomePerClick}</p>
                     <p>$${user.incomePerSec} per second</p>
@@ -147,6 +148,33 @@ class View {
     static updateBurgerInfo(user) {
         config.mainPage.querySelectorAll("#clickCounter")[0].innerHTML = "";
         config.mainPage.querySelectorAll("#clickCounter")[0].innerHTML = `<h3>${user.clickCounter} Burgers</h3>`;
+    }
+
+    static createUserInfo(user) {
+        let container = document.createElement("div");
+        container.classList.add("text-center", "text-white", "d-flex", "flex-wrap");
+        container.innerHTML =
+            `
+                <div class="col-6 border">
+                    <p>${user.name}</p>
+                </div>
+                <div id="userAge" class="col-6 border">
+                    <p>${user.age} years old</p>
+                </div>
+                <div id="userDays" class="col-6 border">
+                    <p>${user.days} days</p>
+                </div>
+                <div id="userMoney" class="col-6 border">
+                    <p>$ ${user.money}</p>
+                </div>
+            `;
+
+        return container;
+    }
+
+    static updateMoney(user) {
+        config.mainPage.querySelectorAll("#userMoney")[0].innerHTML = "";
+        config.mainPage.querySelectorAll("#userMoney")[0].innerHTML = `<p>$ ${user.money}</p>`;
     }
 }
 
@@ -206,6 +234,7 @@ class Controller {
         user.money += user.incomePerClick;
         user.clickCounter++;
         View.updateBurgerInfo(user);
+        View.updateMoney(user);
     }
 }
 
