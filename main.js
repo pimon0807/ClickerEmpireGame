@@ -12,6 +12,7 @@ class User {
         this.items = items
         this.incomePerClick = 25;
         this.incomePerSec = 0;
+        this.clickCounter = 0;
     }
 }
 
@@ -94,12 +95,58 @@ class View {
         container.classList.add("vh-100", "d-flex", "justify-content-center", "align-items-center")
         container.innerHTML =
             `
-            <div>
-                <p>${user.name}</p>
+            <div class="bg-navy d-flex col-10">
+                <div id="burgerInfo" class="bg-dark col-4">
+                </div>
+                <div class="col-8">
+                    <div id="userInfo">
+                    </div>
+                    
+                    <div id="itemList" class="overflow-auto">
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <div id="reset">
+                            <i class="fas fa-undo fa-2x text-white"></i>
+                        </div>
+                        <div id="save">
+                            <i class="fas fa-save fa-2x text-white"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
             `;
 
+        container.querySelectorAll("#burgerInfo")[0].append(View.createBurgerInfo(user));
+
         return container;
+    }
+
+    static createBurgerInfo(user) {
+        let container = document.createElement("div");
+        container.innerHTML =
+            `
+                <div class="text-white text-center">
+                    <h3 id="clickCounter">${user.clickCounter} Burgers</h3>
+                    <p>one click $${user.incomePerClick}</p>
+                    <p>$${user.incomePerSec} per second</p>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <img src="https://cdn.pixabay.com/photo/2014/04/02/17/00/burger-307648_960_720.png" width=80% class="py-2 hover img-fuid" id="burger">
+                </div>
+            `;
+
+        let bergerClick = container.querySelectorAll("#burger")[0];
+        bergerClick.addEventListener("click", function (){
+            Controller.calOneClickBurger(user);
+        });
+
+        return container;
+    }
+
+    static updateBurgerInfo(user) {
+        config.mainPage.querySelectorAll("#clickCounter")[0].innerHTML = "";
+        config.mainPage.querySelectorAll("#clickCounter")[0].innerHTML = `<h3>${user.clickCounter} Burgers</h3>`;
     }
 }
 
@@ -153,6 +200,12 @@ class Controller {
         ];
 
         return  new User(userName, 18, 0, 50000, itemsList);
+    }
+
+    static calOneClickBurger(user) {
+        user.money += user.incomePerClick;
+        user.clickCounter++;
+        View.updateBurgerInfo(user);
     }
 }
 
