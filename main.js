@@ -119,6 +119,7 @@ class View {
 
         container.querySelectorAll("#burgerInfo")[0].append(View.createBurgerInfo(user));
         container.querySelectorAll("#userInfo")[0].append(View.createUserInfo(user));
+        container.querySelectorAll("#itemList")[0].append(View.createItemList(user));
 
         return container;
     }
@@ -176,6 +177,11 @@ class View {
         config.mainPage.querySelectorAll("#userMoney")[0].innerHTML = "";
         config.mainPage.querySelectorAll("#userMoney")[0].innerHTML = `<p>$ ${user.money}</p>`;
     }
+
+    static createItemList(user) {
+        let container = document.createElement("div");
+
+    }
 }
 
 
@@ -214,8 +220,8 @@ class Controller {
 
     static createInitialUserAccount(userName) {
         let itemsList = [
-            new Ability("Flip machine", 15000, 500, "xxx", 25),
-            new Investment("ETF Stock", 300000, Infinity, "xxx", 0.001),
+            new Ability("Flip machine", 15000, 500, "https://cdn.pixabay.com/photo/2016/01/10/12/14/meat-1131717_1280.jpg", 25),
+            new Investment("ETF Stock", 300000, Infinity, "https://cdn.pixabay.com/photo/2016/11/27/21/42/stock-1863880_1280.jpg", 0.001),
             new Investment("ETF Bonds", 300000, Infinity, "xxx", 0.0007),
             new RealEstate("Lemonade Stand", 30000, 1000, "xxx", 30),
             new RealEstate("Ice Cream Truck", 100000, 500, "xxx", 120),
