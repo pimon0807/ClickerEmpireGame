@@ -180,7 +180,7 @@ class View {
 
     static createItemList(user) {
         let container = document.createElement("div");
-
+        //here
     }
 }
 
@@ -245,5 +245,3 @@ class Controller {
 }
 
 Controller.selectGame();
-
-#conect
