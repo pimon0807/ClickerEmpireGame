@@ -17,31 +17,32 @@ class User {
 }
 
 class Item {
-    constructor(name, price, maxAmount, url) {
+    constructor(name, price, maxAmount, currAmount, url) {
         this.name = name;
         this.price = price;
         this.maxAmount = maxAmount;
+        this.currAmount = currAmount;
         this.url = url;
     }
 }
 
 class Ability extends Item {
-    constructor(name, price, maxAmount, url, incomePerClick) {
-        super(name, price, maxAmount, url);
+    constructor(name, price, maxAmount, currAmount, url, incomePerClick) {
+        super(name, price, maxAmount, currAmount, url);
         this.incomePerClick = incomePerClick;
     }
 }
 
 class Investment extends Item {
-    constructor(name, price, maxAmount, url, incomeRatePerSec) {
-        super(name, price, maxAmount, url);
+    constructor(name, price, maxAmount, currAmount, url, incomeRatePerSec) {
+        super(name, price, maxAmount, currAmount, url);
         this.incomeRatePerSec = incomeRatePerSec;
     }
 }
 
 class RealEstate extends Item {
-    constructor(name, price, maxAmount, url, incomePerSec) {
-        super(name, price, maxAmount, url);
+    constructor(name, price, maxAmount, currAmount, url, incomePerSec) {
+        super(name, price, maxAmount, currAmount, url);
         this.incomePerSec = incomePerSec;
     }
 }
@@ -95,16 +96,15 @@ class View {
         container.classList.add("vh-100", "d-flex", "justify-content-center", "align-items-center", "bg-light")
         container.innerHTML =
             `
-            <div class="bg-dark d-flex col-10 p-3">
+            <div class="bg-dark d-flex flex-row justify-content-center align-items-center col-10 p-3">
                 <div id="burgerInfo" class="bg-darkNavy col-4 p-3">
                 </div>
                 <div class="col-8">
-                    <div id="userInfo" class="bg-darkNavy">
+                    <div id="userInfo" class="bg-darkNavy my-3">
                     </div>
                     
-                    <div id="itemList" class="overflow-auto">
+                    <div id="itemList" class="overflow-auto boxsize">
                     </div>
-                    
                     <div class="d-flex justify-content-end">
                         <div id="reset">
                             <i class="fas fa-undo fa-2x text-white"></i>
@@ -180,7 +180,32 @@ class View {
 
     static createItemList(user) {
         let container = document.createElement("div");
-        //here
+        container.classList.add("bg-white")
+        for(let i=0; i<user.items.length; i++){
+            container.innerHTML +=
+                `
+                <div class="d-flex align-items-center m-1 border">
+                    <div class="d-none d-block p-1 col-3">
+                        <img src=${user.items[i].url} class="img-fluid">
+                    </div>
+                    <div class="col-9 d-flex flex-row justify-content-between align-items-center">
+                        <div class="col-10">
+                            <div class="d-flex align-items-center">
+                                <p>${user.items[i].name}</p>
+                            </div>
+                            <div class="d-flex flex-row justify-content-between">
+                                <p>$${user.items[i].price}</p>
+                                <p>+$xxx</p>
+                             </div>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <p>${user.items[i].currAmount}</p>
+                        </div>
+                    </div>
+                `;
+        }
+
+        return container;
     }
 }
 
@@ -220,17 +245,17 @@ class Controller {
 
     static createInitialUserAccount(userName) {
         let itemsList = [
-            new Ability("Flip machine", 15000, 500, "https://cdn.pixabay.com/photo/2016/01/10/12/14/meat-1131717_1280.jpg", 25),
-            new Investment("ETF Stock", 300000, Infinity, "https://cdn.pixabay.com/photo/2016/11/27/21/42/stock-1863880_1280.jpg", 0.001),
-            new Investment("ETF Bonds", 300000, Infinity, "xxx", 0.0007),
-            new RealEstate("Lemonade Stand", 30000, 1000, "xxx", 30),
-            new RealEstate("Ice Cream Truck", 100000, 500, "xxx", 120),
-            new RealEstate("House", 20000000, 100, "xxx", 32000),
-            new RealEstate("TownHouse", 40000000, 100, "xxx", 64000),
-            new RealEstate("Mansion", 250000000, 20, "xxx", 500000),
-            new RealEstate("Industrial Space", 1000000000, 10, "xxx", 2200000),
-            new RealEstate("Hotel Skyscraper", 10000000000, 5, "xxx", 25000000),
-            new RealEstate("Bullet-Speed Sky Railway", 10000000000000, 1, "xxx", 30000000000),
+            new Ability("Flip machine", 15000, 500, 0, "https://cdn.pixabay.com/photo/2016/01/10/12/14/meat-1131717_1280.jpg", 25),
+            new Investment("ETF Stock", 300000, Infinity, 0, "https://cdn.pixabay.com/photo/2016/11/27/21/42/stock-1863880_1280.jpg", 0.001),
+            new Investment("ETF Bonds", 300000, Infinity, 0, "xxx", 0.0007),
+            new RealEstate("Lemonade Stand", 30000, 1000, 0, "xxx", 30),
+            new RealEstate("Ice Cream Truck", 100000, 500, 0, "xxx", 120),
+            new RealEstate("House", 20000000, 100, 0, "xxx", 32000),
+            new RealEstate("TownHouse", 40000000, 100, 0, "xxx", 64000),
+            new RealEstate("Mansion", 250000000, 20, 0, "xxx", 500000),
+            new RealEstate("Industrial Space", 1000000000, 10, 0, "xxx", 2200000),
+            new RealEstate("Hotel Skyscraper", 10000000000, 5, 0, "xxx", 25000000),
+            new RealEstate("Bullet-Speed Sky Railway", 10000000000000, 1, 0, "xxx", 30000000000),
         ];
 
         return  new User(userName, 18, 0, 50000, itemsList);
