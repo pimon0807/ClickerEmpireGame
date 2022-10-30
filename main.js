@@ -14,6 +14,7 @@ class User {
         this.incomePerSec = 0;
         this.clickCounter = 0;
     }
+
 }
 
 class Item {
@@ -133,8 +134,12 @@ class View {
             `
                 <div class="text-white text-center bg-dark p-1">
                     <h3 id="clickCounter">${user.clickCounter} Burgers</h3>
-                    <p>one click $${user.incomePerClick}</p>
-                    <p>$${user.incomePerSec} per second</p>
+                    <div id="incomePerClick">
+                        <p>one click $${user.incomePerClick}</p>
+                    </div>
+                    <div id="incomePerSec">
+                        <p>$ ${Controller.convertUnit(user.incomePerSec)} per second</p>
+                    </div>
                 </div>
                 <div class="d-flex justify-content-center">
                     <img src="https://cdn.pixabay.com/photo/2014/04/02/17/00/burger-307648_960_720.png" width=80% class="py-2 hover img-fuid" id="burger">
@@ -169,7 +174,7 @@ class View {
                     <p>${user.days} days</p>
                 </div>
                 <div id="userMoney" class="col-6 border">
-                    <p>$ ${user.money}</p>
+                    <p>$ ${Controller.convertUnit(user.money)}</p>
                 </div>
             `;
 
@@ -197,10 +202,9 @@ class View {
                             <div class="d-flex align-items-center">
                                 <h4>${user.items[i].name}</h4>
                             </div>
-                            <div class="d-flex flex-row justify-content-between">
+                            <div id="${'income'+i}" class="d-flex flex-row justify-content-between">
                                 <p>$${Controller.convertUnit(user.items[i].price)}</p>
-                                <p>+$${Controller.convertUnit(Controller.calculateProfit(user.items[i]))} / sec</p>
-                             </div>
+                            </div>
                         </div>
                         <div class="d-flex align-items-center justify-content-center">
                             <p>${user.items[i].currAmount}</p>
@@ -212,11 +216,28 @@ class View {
             itemInfo.addEventListener("click", function(){
                 config.mainPage.querySelectorAll("#itemList")[0].innerHTML = "";
                 config.mainPage.querySelectorAll("#itemList")[0].append(View.createPurchasePage(user, user.items[i]));
-            })
+            });
+            itemInfo.querySelectorAll("#income"+i)[0].innerHTML +=  View.incomeInfo(user.items[i])
             container.append(itemInfo);
         }
 
         return container;
+    }
+
+    static incomeInfo(item) {
+        if(item.type === "ability"){
+            return `<p>+$${Controller.convertUnit(Controller.calculateProfit(item))} / click</p>`;
+        }else{
+            return `<p>+$${Controller.convertUnit(Controller.calculateProfit(item))} / sec</p>`;
+        }
+    }
+
+    static detailIncomeInfo(item) {
+        if(item.type === "ability"){
+            return `<p>Get ${Controller.convertUnit(Controller.calculateProfit(item))} extra daller per click</p>`;
+        }else{
+            return `<p>Get ${Controller.convertUnit(Controller.calculateProfit(item))} extra daller per second</p>`;
+        }
     }
 
     static createPurchasePage(user, item) {
@@ -229,7 +250,7 @@ class View {
                         <h3>${item.name}</h3>
                         <p>Max Purchase: ${item.maxAmount}</p>
                         <p>Price: $${Controller.convertUnit(item.price)}</p>
-                        <p>Get ${Controller.convertUnit(Controller.calculateProfit(item))} extra daller per second</p>
+                        <p>${View.detailIncomeInfo(item)}</p>
                     </div>
                     <div>
                         <img src="${item.url}" class="col-12">
@@ -270,6 +291,21 @@ class View {
         })
         return container;
     }
+
+    static updateTimerEffects(user) {
+        config.mainPage.querySelectorAll("#userDays")[0].innerHTML =
+            `
+            <p>${user.days} days</p>
+            `;
+        config.mainPage.querySelectorAll("#userMoney")[0].innerHTML =
+            `
+            <p>$ ${Controller.convertUnit(user.money)}</p>
+            `;
+        config.mainPage.querySelectorAll("#incomePerSec")[0].innerHTML =
+            `
+            <p>$ ${Controller.convertUnit(user.incomePerSec)} per second</p>
+            `;
+    }
 }
 
 
@@ -302,6 +338,7 @@ class Controller {
             }else{
                 let user = Controller.createInitialUserAccount(userName);
                 Controller.moveInputNameToMain(user);
+                Controller.startTimer(user);
             }
         })
     }
@@ -375,6 +412,26 @@ class Controller {
         if(user.money >= total && inputNumberOfItems > 0){
             config.mainPage.querySelectorAll("#purchase")[0].disabled = false;
         }
+    }
+
+    static calculateIncomePerSec(user) {
+        user.incomePerSec = 0;
+        for(let i=0; i<user.items.length; i++){
+            if(user.items[i].type === "realEstate"){
+                user.incomePerSec = user.items[i].incomePerSec * user.items[i].currAmount + user.incomePerSec;
+            }else if(user.items[i].type === "investment"){
+                user.incomePerSec = user.items[i].incomeRatePerSec * user.items[i].currAmount + user.incomePerSec;
+            }
+        }
+        return user.incomePerSec;
+    }
+
+    static startTimer(user) {
+        setInterval(function (){
+            user.days += 1;
+            user.money += Controller.calculateIncomePerSec(user);
+            View.updateTimerEffects(user);
+        }, 1000)
     }
 }
 
