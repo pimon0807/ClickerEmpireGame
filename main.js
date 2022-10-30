@@ -17,7 +17,7 @@ class User {
 }
 
 class Item {
-    constructor(name, price, maxAmount, currAmount, url) {
+    constructor(name,price, maxAmount, currAmount, url) {
         this.name = name;
         this.price = price;
         this.maxAmount = maxAmount;
@@ -29,6 +29,7 @@ class Item {
 class Ability extends Item {
     constructor(name, price, maxAmount, currAmount, url, incomePerClick) {
         super(name, price, maxAmount, currAmount, url);
+        this.type = "ability";
         this.incomePerClick = incomePerClick;
     }
 }
@@ -36,6 +37,7 @@ class Ability extends Item {
 class Investment extends Item {
     constructor(name, price, maxAmount, currAmount, url, incomeRatePerSec) {
         super(name, price, maxAmount, currAmount, url);
+        this.type = "investment";
         this.incomeRatePerSec = incomeRatePerSec;
     }
 }
@@ -43,6 +45,7 @@ class Investment extends Item {
 class RealEstate extends Item {
     constructor(name, price, maxAmount, currAmount, url, incomePerSec) {
         super(name, price, maxAmount, currAmount, url);
+        this.type = "realEstate";
         this.incomePerSec = incomePerSec;
     }
 }
@@ -182,29 +185,89 @@ class View {
         let container = document.createElement("div");
         container.classList.add("bg-white")
         for(let i=0; i<user.items.length; i++){
-            container.innerHTML +=
+            let itemInfo = document.createElement("div");
+            itemInfo.innerHTML =
                 `
-                <div class="d-flex align-items-center m-1 border">
+                <div id="${''+i}" class="d-flex align-items-center m-1 border">
                     <div class="d-none d-block p-1 col-3">
                         <img src=${user.items[i].url} class="img-fluid">
                     </div>
                     <div class="col-9 d-flex flex-row justify-content-between align-items-center">
                         <div class="col-10">
                             <div class="d-flex align-items-center">
-                                <p>${user.items[i].name}</p>
+                                <h4>${user.items[i].name}</h4>
                             </div>
                             <div class="d-flex flex-row justify-content-between">
-                                <p>$${user.items[i].price}</p>
-                                <p>+$xxx</p>
+                                <p>$${Controller.convertUnit(user.items[i].price)}</p>
+                                <p>+$${Controller.convertUnit(Controller.calculateProfit(user.items[i]))} / sec</p>
                              </div>
                         </div>
                         <div class="d-flex align-items-center justify-content-center">
                             <p>${user.items[i].currAmount}</p>
                         </div>
                     </div>
+                  </div>
                 `;
+
+            itemInfo.addEventListener("click", function(){
+                config.mainPage.querySelectorAll("#itemList")[0].innerHTML = "";
+                config.mainPage.querySelectorAll("#itemList")[0].append(View.createPurchasePage(user, user.items[i]));
+            })
+            container.append(itemInfo);
         }
 
+        return container;
+    }
+
+    static createPurchasePage(user, item) {
+        let container = document.createElement("div");
+        container.innerHTML =
+            `
+            <div class="col-12 bg-white p-3">
+                <div class="d-flex flex-row align-items-center justify-content-center">
+                    <div class="col-8">
+                        <h3>${item.name}</h3>
+                        <p>Max Purchase: ${item.maxAmount}</p>
+                        <p>Price: $${Controller.convertUnit(item.price)}</p>
+                        <p>Get ${Controller.convertUnit(Controller.calculateProfit(item))} extra daller per second</p>
+                    </div>
+                    <div>
+                        <img src="${item.url}" class="col-12">
+                    </div>
+                </div>
+                <div>
+                    <h4>How Many would you like to purchase?</h4>
+                    <input class="form-control" id="totalItems" type="number" placeholder="" max="${user.money/item.price}" min="0">
+                </div>
+                <div id="total" class="d-flex justify-content-end">
+                    <h4>Total: $0</h4>
+                </div>
+                <div class="d-flex flex-row col-12 justify-content-between">
+                    <button id="goBack" class="btn btn-secondary col-5">Go Back</button>
+                    <button id="purchase" class="btn btn-primary col-5" disabled>Purchase</button>
+                </div>
+            </div>
+            `;
+        container.querySelectorAll("#totalItems")[0].addEventListener("change", function (){
+            let inputNumberOfItems = container.querySelectorAll("#totalItems")[0].value;
+            container.querySelectorAll("#total")[0].innerHTML =
+                `
+                <h4>Total: $${item.price * inputNumberOfItems}</h4>
+                `;
+            Controller.removeDisabled(user, inputNumberOfItems, item.price);
+        })
+
+        let goBackBtn = container.querySelectorAll("#goBack")[0];
+        goBackBtn.addEventListener("click", function () {
+            config.mainPage.querySelectorAll("#itemList")[0].innerHTML = "";
+            config.mainPage.querySelectorAll("#itemList")[0].append(View.createItemList(user));
+        });
+
+        let purchaseBtn = container.querySelectorAll("#purchase")[0];
+        purchaseBtn.addEventListener("click", function () {
+            let inputNumberOfItems = container.querySelectorAll("#totalItems")[0].value;
+            Controller.purchaseItem(user, inputNumberOfItems, item);
+        })
         return container;
     }
 }
@@ -245,7 +308,7 @@ class Controller {
 
     static createInitialUserAccount(userName) {
         let itemsList = [
-            new Ability("Flip machine", 15000, 500, 0, "https://cdn.pixabay.com/photo/2016/01/10/12/14/meat-1131717_1280.jpg", 25),
+            new Ability("Flip machine", 15000, 500, 1, "https://cdn.pixabay.com/photo/2016/01/10/12/14/meat-1131717_1280.jpg", 25),
             new Investment("ETF Stock", 300000, Infinity, 0, "https://cdn.pixabay.com/photo/2016/11/27/21/42/stock-1863880_1280.jpg", 0.001),
             new Investment("ETF Bonds", 300000, Infinity, 0, "xxx", 0.0007),
             new RealEstate("Lemonade Stand", 30000, 1000, 0, "xxx", 30),
@@ -266,6 +329,52 @@ class Controller {
         user.clickCounter++;
         View.updateBurgerInfo(user);
         View.updateMoney(user);
+    }
+
+    static calculateProfit(item) {
+        if(item.type === "ability"){
+            return item.currAmount * item.incomePerClick;
+        }else if(item.type === "investment"){
+            return (item.price + item.currAmount) * item.incomeRatePerSec;
+        }else if(item.type === "realEstate"){
+        return item.incomePerSec
+        }
+    }
+
+
+    static convertUnit(number) {
+        if (number >= 1e12){
+            return number / 1e12 + " trillion";
+        }else if(number >= 1e9){
+            return number / 1e9 + " billion";
+        }else if(number >= 1e6){
+            return number / 1e6 + " million";
+        }else {
+            return number;
+        }
+
+    }
+
+    static purchaseItem(user, inputNumberOfItems, item) {
+        try {
+            if(inputNumberOfItems < item.maxAmount){
+            }
+        } catch {
+            alert(`Over max amount! Please input ${item.maxAmount} or less`);
+
+        }
+
+        user.money = user.money - inputNumberOfItems * item.price;
+        user.items[user.items.indexOf(item)].currAmount = parseInt(user.items[user.items.indexOf(item)].currAmount) + parseInt(inputNumberOfItems);
+        config.mainPage.innerHTML = "";
+        config.mainPage.append(View.createMainPage(user));
+    }
+
+    static removeDisabled(user, inputNumberOfItems, price) {
+        let total = inputNumberOfItems * price;
+        if(user.money >= total && inputNumberOfItems > 0){
+            config.mainPage.querySelectorAll("#purchase")[0].disabled = false;
+        }
     }
 }
 
