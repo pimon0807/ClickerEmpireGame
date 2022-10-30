@@ -305,6 +305,10 @@ class View {
             `
             <p>$ ${Controller.convertUnit(user.incomePerSec)} per second</p>
             `;
+        config.mainPage.querySelectorAll("#incomePerClick")[0].innerHTML =
+            `
+            <p>one click $${user.incomePerClick}</p>
+            `;
     }
 }
 
@@ -426,10 +430,20 @@ class Controller {
         return user.incomePerSec;
     }
 
+    static calculateIncomePerClick(user) {
+        for(let i=0; i<user.items.length; i++){
+            if(user.items[i].type === "ability"){
+                user.incomePerClick = user.items[i].incomePerClick * user.items[i].currAmount; + user.items[i].incomePerClick;
+            }
+        }
+        return user.incomePerClick;
+    }
+
     static startTimer(user) {
         setInterval(function (){
             user.days += 1;
             user.money += Controller.calculateIncomePerSec(user);
+            user.incomePerClick = Controller.calculateIncomePerClick(user);
             View.updateTimerEffects(user);
         }, 1000)
     }
