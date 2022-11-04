@@ -10,7 +10,7 @@ class User {
         this.days = days;
         this.money = money;
         this.items = items
-        this.incomePerClick = 25;
+        this.incomePerClick = 0;
         this.incomePerSec = 0;
         this.clickCounter = 0;
     }
@@ -40,6 +40,7 @@ class Investment extends Item {
         super(name, price, maxAmount, currAmount, url);
         this.type = "investment";
         this.incomeRatePerSec = incomeRatePerSec;
+        this.reverseAmount = 0;
     }
 }
 
@@ -228,7 +229,7 @@ class View {
         if(item.type === "ability"){
             return `<p>+$${Controller.convertUnit(Controller.calculateProfit(item))} / click</p>`;
         }else{
-            return `<p>+$${Controller.convertUnit(Controller.calculateProfit(item))} / sec</p>`;
+            return `<p>+$${Math.floor(Controller.convertUnit(Controller.calculateProfit(item)))} / sec</p>`;
         }
     }
 
@@ -236,7 +237,7 @@ class View {
         if(item.type === "ability"){
             return `<p>Get ${Controller.convertUnit(Controller.calculateProfit(item))} extra daller per click</p>`;
         }else{
-            return `<p>Get ${Controller.convertUnit(Controller.calculateProfit(item))} extra daller per second</p>`;
+            return `<p>Get ${Math.floor(Controller.convertUnit(Controller.calculateProfit(item)))} extra daller per second</p>`;
         }
     }
 
@@ -258,7 +259,7 @@ class View {
                 </div>
                 <div>
                     <h4>How Many would you like to purchase?</h4>
-                    <input class="form-control" id="totalItems" type="number" placeholder="" max="${user.money/item.price}" min="0">
+                    <input class="form-control" id="totalItems" type="number" placeholder="" max="${Controller.calculateMaxAmount(user.money, item)}" min="0">
                 </div>
                 <div id="total" class="d-flex justify-content-end">
                     <h4>Total: $0</h4>
@@ -273,9 +274,9 @@ class View {
             let inputNumberOfItems = container.querySelectorAll("#totalItems")[0].value;
             container.querySelectorAll("#total")[0].innerHTML =
                 `
-                <h4>Total: $${item.price * inputNumberOfItems}</h4>
+                <h4>Total: $${Controller.calculateTotalPrice(item, inputNumberOfItems)}</h4>
                 `;
-            Controller.removeDisabled(user, inputNumberOfItems, item.price);
+            Controller.removeDisabled(user, inputNumberOfItems, item);
         })
 
         let goBackBtn = container.querySelectorAll("#goBack")[0];
@@ -362,7 +363,7 @@ class Controller {
             new RealEstate("Bullet-Speed Sky Railway", 10000000000000, 1, 0, "xxx", 30000000000),
         ];
 
-        return  new User(userName, 18, 0, 50000, itemsList);
+        return  new User(userName, 18, 0, 5000000, itemsList);
     }
 
     static calOneClickBurger(user) {
@@ -376,9 +377,9 @@ class Controller {
         if(item.type === "ability"){
             return item.currAmount * item.incomePerClick;
         }else if(item.type === "investment"){
-            return (item.price + item.currAmount) * item.incomeRatePerSec;
+            return (item.price + item.reverseAmount) * item.incomeRatePerSec;
         }else if(item.type === "realEstate"){
-        return item.incomePerSec
+            return item.incomePerSec
         }
     }
 
@@ -405,14 +406,26 @@ class Controller {
 
         }
 
-        user.money = user.money - inputNumberOfItems * item.price;
+        let currItem = user.items[user.items.indexOf(item)];
+        if(item.name === "ETF Stock"){
+            let currTotal = Controller.calculateTotalPrice(item, inputNumberOfItems);
+            currItem.reverseAmount += currTotal;
+            user.money = user.money - currTotal;
+            currItem.price = Math.floor(currItem.price * Math.pow(1.1, inputNumberOfItems));
+        }else if(item.type === "investment"){
+            currItem.reverseAmount += currItem.price;
+        }
+        else{
+            user.money = user.money - inputNumberOfItems * item.price;
+        }
+
         user.items[user.items.indexOf(item)].currAmount = parseInt(user.items[user.items.indexOf(item)].currAmount) + parseInt(inputNumberOfItems);
         config.mainPage.innerHTML = "";
         config.mainPage.append(View.createMainPage(user));
     }
 
-    static removeDisabled(user, inputNumberOfItems, price) {
-        let total = inputNumberOfItems * price;
+    static removeDisabled(user, inputNumberOfItems, item) {
+        let total = Controller.calculateTotalPrice(item, inputNumberOfItems);
         if(user.money >= total && inputNumberOfItems > 0){
             config.mainPage.querySelectorAll("#purchase")[0].disabled = false;
         }
@@ -424,7 +437,7 @@ class Controller {
             if(user.items[i].type === "realEstate"){
                 user.incomePerSec = user.items[i].incomePerSec * user.items[i].currAmount + user.incomePerSec;
             }else if(user.items[i].type === "investment"){
-                user.incomePerSec = user.items[i].incomeRatePerSec * user.items[i].currAmount + user.incomePerSec;
+                user.incomePerSec = user.items[i].incomeRatePerSec * user.items[i].reverseAmount + user.incomePerSec;
             }
         }
         return user.incomePerSec;
@@ -433,7 +446,7 @@ class Controller {
     static calculateIncomePerClick(user) {
         for(let i=0; i<user.items.length; i++){
             if(user.items[i].type === "ability"){
-                user.incomePerClick = user.items[i].incomePerClick * user.items[i].currAmount; + user.items[i].incomePerClick;
+                user.incomePerClick = user.items[i].incomePerClick * user.items[i].currAmount;
             }
         }
         return user.incomePerClick;
@@ -446,6 +459,32 @@ class Controller {
             user.incomePerClick = Controller.calculateIncomePerClick(user);
             View.updateTimerEffects(user);
         }, 1000)
+    }
+
+    static calculateTotalPrice(item, inputNumberOfItems) {
+        if(item.name === "ETF Stock") {
+            let total = 0;
+            for (let i = 0; i < inputNumberOfItems; i++) {
+                total += item.price * Math.pow(1.1, i);
+            }
+            return Math.floor(total);
+        }else{
+            return item.price * inputNumberOfItems;
+        }
+    }
+
+    static calculateMaxAmount(money, item) {
+        if(item.name === "ETF Stock") {
+            let amount = 1;
+            let total = 0;
+            while(money > total){
+                total += item.price * Math.pow(1.1, amount);
+                amount++;
+            }
+            return amount-1;
+        }else{
+            return money/item.price;
+        }
     }
 }
 
