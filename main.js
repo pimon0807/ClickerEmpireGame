@@ -350,17 +350,17 @@ class Controller {
 
     static createInitialUserAccount(userName) {
         let itemsList = [
-            new Ability("Flip machine", 15000, 500, 1, "https://cdn.pixabay.com/photo/2016/01/10/12/14/meat-1131717_1280.jpg", 25),
-            new Investment("ETF Stock", 300000, Infinity, 0, "https://cdn.pixabay.com/photo/2016/11/27/21/42/stock-1863880_1280.jpg", 0.001),
-            new Investment("ETF Bonds", 300000, Infinity, 0, "xxx", 0.0007),
-            new RealEstate("Lemonade Stand", 30000, 1000, 0, "xxx", 30),
-            new RealEstate("Ice Cream Truck", 100000, 500, 0, "xxx", 120),
-            new RealEstate("House", 20000000, 100, 0, "xxx", 32000),
-            new RealEstate("TownHouse", 40000000, 100, 0, "xxx", 64000),
-            new RealEstate("Mansion", 250000000, 20, 0, "xxx", 500000),
-            new RealEstate("Industrial Space", 1000000000, 10, 0, "xxx", 2200000),
-            new RealEstate("Hotel Skyscraper", 10000000000, 5, 0, "xxx", 25000000),
-            new RealEstate("Bullet-Speed Sky Railway", 10000000000000, 1, 0, "xxx", 30000000000),
+            new Ability("Flip machine", 15000, 500, 1, "https://cdn.pixabay.com/photo/2019/06/30/20/09/grill-4308709_960_720.png", 25),
+            new Investment("ETF Stock", 300000, Infinity, 0, "https://cdn.pixabay.com/photo/2016/03/31/20/51/chart-1296049_960_720.png", 0.001),
+            new Investment("ETF Bonds", 300000, Infinity, 0, "https://cdn.pixabay.com/photo/2016/03/31/20/51/chart-1296049_960_720.png", 0.0007),
+            new RealEstate("Lemonade Stand", 30000, 1000, 0, "https://cdn.pixabay.com/photo/2012/04/15/20/36/juice-35236_960_720.png", 30),
+            new RealEstate("Ice Cream Truck", 100000, 500, 0, "https://cdn.pixabay.com/photo/2020/01/30/12/37/ice-cream-4805333_960_720.png", 120),
+            new RealEstate("House", 20000000, 100, 0, "https://cdn.pixabay.com/photo/2016/03/31/18/42/home-1294564_960_720.png", 32000),
+            new RealEstate("TownHouse", 40000000, 100, 0, "https://cdn.pixabay.com/photo/2019/06/15/22/30/modern-house-4276598_960_720.png", 64000),
+            new RealEstate("Mansion", 250000000, 20, 0, "https://cdn.pixabay.com/photo/2017/10/30/20/52/condominium-2903520_960_720.png", 500000),
+            new RealEstate("Industrial Space", 1000000000, 10, 0, "https://cdn.pixabay.com/photo/2012/05/07/17/35/factory-48781_960_720.png", 2200000),
+            new RealEstate("Hotel Skyscraper", 10000000000, 5, 0, "https://cdn.pixabay.com/photo/2012/05/07/18/03/skyscrapers-48853_960_720.png", 25000000),
+            new RealEstate("Bullet-Speed Sky Railway", 10000000000000, 1, 0, "https://cdn.pixabay.com/photo/2013/07/13/10/21/train-157027_960_720.png", 30000000000),
         ];
 
         return  new User(userName, 18, 0, 5000000, itemsList);
