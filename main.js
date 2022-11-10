@@ -229,7 +229,7 @@ class View {
         if(item.type === "ability"){
             return `<p>+$${Controller.convertUnit(Controller.calculateProfit(item))} / click</p>`;
         }else{
-            return `<p>+$${Math.floor(Controller.convertUnit(Controller.calculateProfit(item)))} / sec</p>`;
+            return `<p>+$${Controller.convertUnit(Controller.calculateProfit(item))} / sec</p>`;
         }
     }
 
@@ -237,7 +237,7 @@ class View {
         if(item.type === "ability"){
             return `<p>Get ${Controller.convertUnit(Controller.calculateProfit(item))} extra daller per click</p>`;
         }else{
-            return `<p>Get ${Math.floor(Controller.convertUnit(Controller.calculateProfit(item)))} extra daller per second</p>`;
+            return `<p>Get ${Controller.convertUnit(Controller.calculateProfit(item))} extra daller per second</p>`;
         }
     }
 
