@@ -93,6 +93,11 @@ class View {
             </div>
             `;
 
+        container.querySelectorAll("#goback")[0].addEventListener("click", function (){
+            config.initialPage.classList.remove("d-none");
+            config.mainPage.innerHTML = "";
+        })
+
         return container;
     }
 
@@ -101,7 +106,7 @@ class View {
         container.classList.add("vh-100", "d-flex", "justify-content-center", "align-items-center", "bg-light")
         container.innerHTML =
             `
-            <div class="bg-dark d-flex flex-row justify-content-center align-items-center col-10 p-3">
+            <div class="bg-dark d-flex flex-row justify-content-center align-items-center col-12 p-3">
                 <div id="burgerInfo" class="bg-darkNavy col-4 p-3">
                 </div>
                 <div class="col-8">
@@ -110,7 +115,7 @@ class View {
                     
                     <div id="itemList" class="overflow-auto boxsize">
                     </div>
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-end m-2">
                         <div id="reset">
                             <i class="fas fa-undo fa-2x text-white"></i>
                         </div>
@@ -128,6 +133,10 @@ class View {
 
         container.querySelectorAll("#save")[0].addEventListener("click", function (){
             Controller.saveData(user);
+        })
+        
+        container.querySelectorAll("#reset")[0].addEventListener("click", function (){
+            Controller.resetData(user);
         })
         return container;
     }
@@ -197,9 +206,9 @@ class View {
             let itemInfo = document.createElement("div");
             itemInfo.innerHTML =
                 `
-                <div id="${''+i}" class="d-flex align-items-center m-1 border">
+                <div id="${''+i}" class="d-flex align-items-center m-1 border h-25">
                     <div class="d-none d-block p-1 col-3">
-                        <img src=${user.items[i].url} class="img-fluid">
+                        <img src=${user.items[i].url} width="25%" class="img-fluid">
                     </div>
                     <div class="col-9 d-flex flex-row justify-content-between align-items-center">
                         <div class="col-10">
@@ -257,7 +266,7 @@ class View {
                         <p>${View.detailIncomeInfo(item)}</p>
                     </div>
                     <div>
-                        <img src="${item.url}" class="col-12">
+                        <img src="${item.url}" width="25%" class="col-12">
                     </div>
                 </div>
                 <div>
@@ -312,6 +321,13 @@ class View {
         config.mainPage.querySelectorAll("#incomePerClick")[0].innerHTML =
             `
             <p>one click $${user.incomePerClick}</p>
+            `;
+    }
+
+    static updateAge(user) {
+         config.mainPage.querySelectorAll("#age")[0].innerHTML =
+            `
+            <p>${user.age} years old</p>
             `;
     }
 }
@@ -463,6 +479,10 @@ class Controller {
     static startTimer(user) {
         setInterval(function (){
             user.days += 1;
+            if(user.days % 365 === 0){
+                user.age += 1;
+                View.updateAge(user);
+            }
             user.money += Controller.calculateIncomePerSec(user);
             user.incomePerClick = Controller.calculateIncomePerClick(user);
             View.updateTimerEffects(user);
@@ -520,6 +540,15 @@ class Controller {
                 Controller.startTimer(player);
             }
         })
+    }
+
+    static resetData(user) {
+        if(localStorage.getItem(user.name) === null){
+            alert("Data not saved");
+        }else{
+            let newUser = Object.assign(user, Controller.createInitialUserAccount(user.name));
+            Controller.moveInputNameToMain(newUser);
+        }
     }
 }
 
