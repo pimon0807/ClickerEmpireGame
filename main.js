@@ -206,9 +206,9 @@ class View {
             let itemInfo = document.createElement("div");
             itemInfo.innerHTML =
                 `
-                <div id="${''+i}" class="d-flex align-items-center m-1 border h-25">
+                <div id="${''+i}" class="d-flex align-items-center m-1 border h-50">
                     <div class="d-none d-block p-1 col-3">
-                        <img src=${user.items[i].url} width="25%" class="img-fluid">
+                        <img src=${user.items[i].url} width="50%" class="img-fluid">
                     </div>
                     <div class="col-9 d-flex flex-row justify-content-between align-items-center">
                         <div class="col-10">
@@ -266,7 +266,7 @@ class View {
                         <p>${View.detailIncomeInfo(item)}</p>
                     </div>
                     <div>
-                        <img src="${item.url}" width="25%" class="col-12">
+                        <img src="${item.url}" class="col-12">
                     </div>
                 </div>
                 <div>
