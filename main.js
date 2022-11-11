@@ -126,6 +126,9 @@ class View {
         container.querySelectorAll("#userInfo")[0].append(View.createUserInfo(user));
         container.querySelectorAll("#itemList")[0].append(View.createItemList(user));
 
+        container.querySelectorAll("#save")[0].addEventListener("click", function (){
+            Controller.saveData(user);
+        })
         return container;
     }
 
@@ -322,6 +325,11 @@ class Controller {
             Controller.moveInitialToInputName();
             Controller.startGame();
         })
+        let loadGameBtn = config.initialPage.querySelectorAll("#loadGame")[0];
+        loadGameBtn.addEventListener("click", function () {
+            Controller.moveInitialToInputName();
+            Controller.loadGame();
+        })
     }
 
     static moveInitialToInputName() {
@@ -363,7 +371,7 @@ class Controller {
             new RealEstate("Bullet-Speed Sky Railway", 10000000000000, 1, 0, "https://cdn.pixabay.com/photo/2013/07/13/10/21/train-157027_960_720.png", 30000000000),
         ];
 
-        return  new User(userName, 18, 0, 5000000, itemsList);
+        return  new User(userName, 18, 0, 50000, itemsList);
     }
 
     static calOneClickBurger(user) {
@@ -485,6 +493,33 @@ class Controller {
         }else{
             return money/item.price;
         }
+    }
+
+    static saveData(user) {
+        let data = JSON.stringify(user);
+        if(localStorage.getItem(user.name) !== null){
+            localStorage.removeItem(user.name);
+        }
+        localStorage.setItem(user.name, data);
+        alert("Save Complete!");
+    }
+
+    static loadGame() {
+        let startGameBtn = config.mainPage.querySelectorAll("#startGame")[0];
+        startGameBtn.addEventListener("click", function (){
+            let userName = config.mainPage.querySelectorAll("input")[0].value;
+            let saveData = JSON.parse(localStorage.getItem(userName));
+            if(saveData === null){
+                alert("Data Not Found.")
+            }else{
+                let player = new User(saveData.name, saveData.age, saveData.days, saveData.money, saveData.items);
+                player.incomePerClick = saveData.incomePerClick;
+                player.incomePerSec = saveData.incomePerSec;
+                player.clickCounter = saveData.clickCounter;
+                Controller.moveInputNameToMain(player);
+                Controller.startTimer(player);
+            }
+        })
     }
 }
 
